@@ -17,7 +17,25 @@ func New(client *nws.Client) *Service {
 
 //func (s *Service) Alerts() {}
 
-//func (s *Service) ActiveAlerts() {}
+// Returns all currently active alerts.
+func (s *Service) ActiveAlerts(options ActiveAlertsOptions) (AlertsResponse, error) {
+	var alerts AlertsResponse
+	// TODO: Handle pagination?  Make an iterator type?
+	resp, err := s.client.LDGet("https://api.weather.gov/alerts/active")
+	if err != nil {
+		return alerts, err
+	}
+
+	dec := json.NewDecoder(resp.Body)
+	defer resp.Body.Close()
+
+	err = dec.Decode(&alerts)
+	if err != nil {
+		return alerts, fmt.Errorf("error decoding API response: %v", err)
+	}
+
+	return alerts, nil
+}
 
 // Get all of the possible Alert types.
 func (s *Service) AlertTypes() ([]string, error) {
